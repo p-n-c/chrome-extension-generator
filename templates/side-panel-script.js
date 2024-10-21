@@ -6,9 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
   port.onMessage.addListener((message) => {
     if (message.from === 'service-worker') {
       console.log('Message received from service worker:', message.message)
-
-      // Display the message in the panel
-      document.getElementById('message').innerText = message.message
+      if (message.message === 'close') {
+        // Closing the side panel
+        window.close()
+      }
     }
   })
 })
