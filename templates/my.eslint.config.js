@@ -4,7 +4,7 @@ import globals from 'globals'
 export default [
   js.configs.recommended,
   {
-    files: ['publish/**/*.js', 'src/**/*.js'],
+    files: ['publish/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'script',

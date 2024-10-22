@@ -69,15 +69,15 @@ async function generateProject({
 
     // Copy configuration files
     await fs.copy(
-      path.join(__dirname, 'eslint.config.js'),
+      path.join(__dirname, 'templates', 'my.eslint.config.js'),
       path.join(projectPath, 'eslint.config.js')
     )
     await fs.copy(
-      path.join(__dirname, 'prettier.config.js'),
+      path.join(__dirname, 'templates', 'my.prettier.config.js'),
       path.join(projectPath, 'prettier.config.js')
     )
     await fs.copy(
-      path.join(__dirname, '.stylelintrc.json'),
+      path.join(__dirname, 'templates', 'my.stylelintrc.json'),
       path.join(projectPath, '.stylelintrc.json')
     )
     await fs.copy(
