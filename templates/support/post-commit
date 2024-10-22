@@ -11,9 +11,9 @@ git archive -o "$ZIP_FILE" HEAD:"$EXTENSION_DIR"
 
 # If the zip was created successfully, allow the commit to proceed
 if [ $? -eq 0 ]; then
-    echo "Extension zipped successfully. Proceeding with commit."
+    echo "Extension zipped successfully."
     exit 0
 else
-    echo "Failed to zip the extension. Commit aborted."
+    echo "Failed to zip the extension."
     exit 1
 fi
