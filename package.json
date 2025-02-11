@@ -20,7 +20,7 @@
     "stylelint-config-standard": "^36.0.1"
   },
   "bin": {
-    "create-extension": "./cli.js"
+    "create-chrome-extension": "./cli.js"
   },
   "type": "module"
 }

@@ -4,9 +4,10 @@
 
 To run the generator, you must clone it.
 
-From the terminal cd into the `extension-template-generator` directory and run:
+From the terminal cd into the `chrome-extension-generator` directory and run:
 
 ```bash
+npm install
 npm link
 ```
 
@@ -15,7 +16,7 @@ This will give you global access to the generator.
 Now go to the root directory where the project will be created:
 
 ```bash
-create-extension
+create-chrome-extension
 ```
 
 This will run the generator (provide inputs as required).
