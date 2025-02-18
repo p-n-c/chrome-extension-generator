@@ -4,7 +4,7 @@ export const promptQuestions = async (input, select) => {
     message: 'Project type:',
     choices: [
       { name: 'Extension project', value: 'ext' },
-      { name: 'Extension project with global side panel', value: 'ext-side-panel' },
+      { name: 'Extension project with side panel', value: 'ext-side-panel' },
     ],
     default: 'ext',
   })
