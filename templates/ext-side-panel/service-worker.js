@@ -9,6 +9,48 @@ const initStorageCache = chrome.storage.local.get().then((items) => {
   Object.assign(storageCache, items)
 })
 
+// Handles the loading state of the side panel DOM
+// (**not** the side panel open state)
+const panelManager = (() => {
+  let currentState = {
+    isLoaded: false,
+    loadPromise: null,
+    resolveLoad: null,
+  }
+
+  return {
+    // Call this from the message handler
+    handlePanelLoaded: () => {
+      currentState.isLoaded = true
+      if (currentState.resolveLoad) {
+        currentState.resolveLoad()
+      }
+    },
+    // Asynchronous wait for the panel DOM to load
+    waitForLoad: async () => {
+      if (currentState.isLoaded) {
+        return Promise.resolve()
+      }
+
+      if (!currentState.loadPromise) {
+        currentState.loadPromise = new Promise((resolve) => {
+          currentState.resolveLoad = resolve
+        })
+      }
+
+      return currentState.loadPromise
+    },
+    // Call this when opening a new panel
+    reset: () => {
+      currentState = {
+        isLoaded: false,
+        loadPromise: null,
+        resolveLoad: null,
+      }
+    },
+  }
+})()
+
 const closeSidePanel = async () => {
   chrome.runtime.sendMessage({
     from: 'service-worker',
@@ -23,20 +65,36 @@ const closeSidePanel = async () => {
   storageCache.isSidePanelOpen = false
 }
 
+const handlePanelOpening = async (tab) => {
+  // This must be run first to avoid
+  panelManager.reset()
+  storageCache.currentTab = tab
+  storageCache.isSidePanelOpen = true
+  await panelManager.waitForLoad()
+  chrome.runtime.sendMessage({
+    from: 'service-worker',
+    action: 'display-message',
+    content: `Side panel for tab: ${storageCache.currentTab.title}`,
+  })
+  // Let the tab content script know that the user started the extension
+  chrome.tabs.sendMessage(storageCache.currentTab.id, {
+    from: 'service-worker',
+    action: 'side-panel-open',
+  })
+}
+
 chrome.action.onClicked.addListener(async (tab) => {
+  // This has to happen first
+  // If the panel is already open, nothing happens!
+  chrome.sidePanel.open({ windowId: tab.windowId })
+  await initStorageCache
   // Visitor clicks on the extension icon
   if (storageCache.isSidePanelOpen) {
     console.log('Closing side panel')
-    await initStorageCache
     closeSidePanel()
   } else {
-    console.log(`Opening side panel for tab ${tab.id}`)
-    chrome.sidePanel.open({ windowId: tab.windowId })
-    // Can't be run outside the if statement because
-    // the sidePanel.open method has to be first in the event listener
-    await initStorageCache
-    storageCache.currentTab = tab
-    storageCache.isSidePanelOpen = true
+    console.log('Opening side panel')
+    await handlePanelOpening(tab)
   }
   chrome.storage.local.set(storageCache)
 })
@@ -70,17 +128,8 @@ chrome.runtime.onMessage.addListener(async (message) => {
       case 'loaded':
         console.log('Side panel loaded')
         // We can only update the side panel when its DOM is loaded
-        chrome.runtime.sendMessage({
-          from: 'service-worker',
-          action: 'display-message',
-          content: `Side panel for tab: ${storageCache.currentTab.title}`,
-        })
-        // Let the tab content script know that the user started the extension
-        chrome.tabs.sendMessage(storageCache.currentTab.id, {
-          from: 'service-worker',
-          action: 'side-panel-open',
-        })
-        break
+        // Let panel manager know about the load
+        panelManager.handlePanelLoaded()
     }
   }
   chrome.storage.local.set(storageCache)
