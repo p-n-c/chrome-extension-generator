@@ -30,12 +30,12 @@ chrome.action.onClicked.addListener(async (tab) => {
     await initStorageCache
     closeSidePanel()
   } else {
-    storageCache.currentTab = tab
-    console.log(`Opening side panel for tab ${storageCache.currentTab.id}`)
-    chrome.sidePanel.open({ windowId: storageCache.currentTab.windowId })
+    console.log(`Opening side panel for tab ${tab.id}`)
+    chrome.sidePanel.open({ windowId: tab.windowId })
     // Can't be run outside the if statement because
     // the sidePanel.open method has to be first in the event listener
     await initStorageCache
+    storageCache.currentTab = tab
     storageCache.isSidePanelOpen = true
   }
   chrome.storage.local.set(storageCache)
