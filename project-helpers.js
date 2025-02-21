@@ -1,6 +1,13 @@
 export const getManifest = (projectType, projectName, manifestDescription) => {
-  const permissions =
-    projectType === 'ext' ? ['activeTab'] : ['activeTab', 'sidePanel']
+  let permissions
+  switch (projectType) {
+    case 'ext':
+      permissions = ['activeTab']
+      break
+    case 'ext-side-panel':
+      permissions = ['activeTab', 'sidePanel', 'storage']
+      break
+  }
   const manifest = {
     manifest_version: 3,
     name: projectName,
